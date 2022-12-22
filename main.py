@@ -5,8 +5,8 @@ from ball import *
 import matplotlib.pyplot as plt
 
 
-window = pyglet.window.Window(400, 600)
-
+window = pyglet.window.Window(400, 400)
+speed = 0.1
 
 balls = []
 frame = 0
@@ -14,8 +14,7 @@ fitness_history = []
 currentGenNum = 0
 
 
-graph = pyglet.graphics.Batch()
-points = []
+
 
 numGenLabel = pyglet.text.Label("Generation: " + str(currentGenNum),
                                 font_size=10,
@@ -40,7 +39,7 @@ def init_gen(parentOne, parentTwo):
         currentBall.mutate()
         balls.append(currentBall)
     frame = 0
-    pyglet.clock.schedule_interval(life, 0.01)
+    pyglet.clock.schedule_interval(life, speed)
 
 
 def select_parents():
@@ -54,6 +53,7 @@ def life(dt):
     global frame
     global currentGenNum
     global numGenLabel
+    parentOne, parentTwo = None, None
 
     for ball in balls:
         ball.agent.x += ball.movements[frame][0]
@@ -67,12 +67,12 @@ def life(dt):
         if currentGenNum < number_generations:
             parentOne, parentTwo = select_parents()
             currentFitness = (parentOne.fitness + parentTwo.fitness) / 2
-            points.append(shapes.Circle(5+currentGenNum, 400+ currentFitness, 1, color=(255, 0, 0), batch=graph))
-            print("Current fitness", parentOne.movements)
             fitness_history.append(currentFitness)
             init_gen(parentOne.movements, parentTwo.movements)
             numGenLabel.text = "Generation: " + str(currentGenNum)
             currentGenNum += 1
+        else:
+            print(balls[0].movements)
     frame += 1
 
 def translate(value, leftMin, leftMax, rightMin, rightMax):
@@ -86,10 +86,10 @@ def on_draw():
     window.clear()
     batch.draw()
     numGenLabel.draw()
-    graph.draw()
 
 
-pyglet.clock.schedule_interval(life, 0.01)
+
+pyglet.clock.schedule_interval(life, speed)
 
 pyglet.app.run()
 plt.plot(fitness_history)
